@@ -21,7 +21,7 @@ namespace SnipeSharp.Endpoints.Models
             set
             {
                 // TODO: Move this logic somewhere else
-                string[] validTypes = { "deployable", "pending", "archived" };
+                string[] validTypes = {"undeployable", "deployable", "pending", "archived" };
                 if (validTypes.Contains(value.ToLower()))
                 {
                     _type = value;

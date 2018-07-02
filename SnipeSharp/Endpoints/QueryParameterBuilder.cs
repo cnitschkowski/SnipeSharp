@@ -12,12 +12,13 @@ namespace SnipeSharp.Endpoints
         public Dictionary<string, string> GetParameters(object item)
         {
             var values = new Dictionary<string, string>();
+            
 
             if (item == null)
             {
                 return values;
             }
-            
+
             foreach (var property in item.GetType().GetProperties())
             {
                 var nameAttribute = property.GetCustomAttribute<NameAttribute>();
@@ -26,10 +27,11 @@ namespace SnipeSharp.Endpoints
                 {
                     continue;
                 }
-                
+
                 var propValue = property.GetValue(item)?.ToString();
 
                 var requestAttribute = nameAttribute as RequestHeaderAttribute;
+
                 // Abort in case of missing required headers.
                 if (string.IsNullOrEmpty(propValue) && requestAttribute?.IsRequired == true)
                 {
@@ -41,10 +43,20 @@ namespace SnipeSharp.Endpoints
                 {
                     continue;
                 }
-                
+
                 string headerName = nameAttribute.Name.Replace("\"", "");
 
                 values.Add(headerName, propValue);
+            }
+
+
+            // Add foreach loop to run with .Replace("\"", ""); 
+            if (item.GetType() == typeof(SnipeSharp.Endpoints.Models.Asset))
+            {
+                if (item.GetType().GetProperty("CustomFields") != null) {
+                    Dictionary<string, string> customFields = item.GetType().GetProperty("CustomFields").GetValue(item) as Dictionary<string, string>;
+                    values = values.Concat(customFields).ToDictionary(e => e.Key, e => e.Value);
+                }
             }
 
             return values;
